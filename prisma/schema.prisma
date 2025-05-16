@@ -12,6 +12,14 @@ datasource db {
 }
 
 model User {
-  id    String @id @default(uuid())
-  email String @unique
+  userId String @id @default(uuid())
+  email  String @unique
+  Todo   Todo[]
+}
+
+model Todo {
+  todoId        String @id @default(uuid())
+  description   String
+  userId        String
+  userReference User   @relation(fields: [userId], references: [userId])
 }
