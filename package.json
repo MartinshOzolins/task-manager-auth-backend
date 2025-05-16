@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "start": "node dist/server.js",
+    "start": "nodemon tsc dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -18,8 +18,11 @@
     "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "@prisma/client": "^6.8.2",
     "@types/express": "^5.0.1",
     "@types/morgan": "^1.9.9",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.8.2"
   }
 }

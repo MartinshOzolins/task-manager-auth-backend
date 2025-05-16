@@ -36,7 +36,8 @@ jest-html-reporters-*
 # Prisma
 prisma/dev.db
 prisma/dev.db-journal
-prisma/migrations/
+src/generated/
+
 
 # ESLint / Stylelint
 .eslintcache
@@ -73,3 +74,7 @@ Thumbs.db
 # Docker
 docker-compose.override.yml
 .docker/
+
+#SQLite
+*.sqlite
+*.sqlite-journal
