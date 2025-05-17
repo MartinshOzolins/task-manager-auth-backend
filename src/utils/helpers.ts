@@ -17,7 +17,10 @@ export async function comparePassword(
   storedPassword: string
 ): Promise<void> {
   const isMatch = await bcrypt.compare(currentPassword, storedPassword);
-  if (!isMatch) new Error("Invalid credentials, incorrect password or email");
+  console.log(currentPassword, storedPassword);
+  console.log(isMatch);
+  if (!isMatch)
+    throw new Error("Invalid credentials, incorrect password or email");
 }
 
 // creates JWT
@@ -59,12 +62,13 @@ export function attachJWTCookie(res: Response, token: string) {
   res.cookie("jwt", token, {
     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
     httpOnly: true,
+    sameSite: "strict",
     //secure: true, // only for production
   });
 }
 
 // validates user details
-export async function validatePasswordAndEmail({
+export function validatePasswordAndEmail({
   password,
   email,
 }: {

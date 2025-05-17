@@ -36,8 +36,8 @@ export const register = catchAsync(async function (
   // attahes jwt as a cookie
   attachJWTCookie(res, token as string);
 
-  res.json("Registration succesful");
   // returns success message
+  res.json("Registration succesful");
 });
 
 // logins and returns JWT
@@ -64,5 +64,6 @@ export const login = catchAsync(async function (req: Request, res: Response) {
   // attahes jwt as a cookie
   attachJWTCookie(res, token as string);
 
+  // returns success message
   res.json("Login succesful");
 });
