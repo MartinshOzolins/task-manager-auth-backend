@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import validator from "validator";
 
 import { Response } from "express";
@@ -32,7 +32,7 @@ export async function signToken(userId: string) {
       { expiresIn: "2d" },
       // callback function
       (err, token) => {
-        if (err) return reject(err);
+        if (err) throw new Error("Something went wrong, please try again!");
         // resolves with token
         else resolve(token);
       }
@@ -48,10 +48,9 @@ export async function verifyToken(token: string) {
       `${process.env.JWT_SECRET}`,
       // callback function
       (err, decoded) => {
-        if (err)
-          if (err) return reject(err);
-          // resolves with decoded token
-          else resolve(decoded);
+        if (err) throw new Error("Something went wrong, please login!");
+        // resolves with decoded token
+        else resolve(decoded);
       }
     );
   });
@@ -89,4 +88,11 @@ export function validatePasswordAndEmail({
   // if (!validator.isStrongPassword(password)) {
   //   throw new Error("Password is not strong enough");
   // }
+}
+// validates todo details
+export function validateNewTodo({ description }: { description: string }) {
+  // checks if todo is not empty and if is, throws an error
+  if (validator.isEmpty(description)) {
+    throw new Error("Please submit todo description");
+  }
 }
