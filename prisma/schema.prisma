@@ -23,8 +23,3 @@ model Todo {
   userId        String
   userReference User   @relation(fields: [userId], references: [userId])
 }
-
-// Session auth
-model Session {
-  sessionId String @id
-}
