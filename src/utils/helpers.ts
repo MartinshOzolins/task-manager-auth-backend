@@ -1,26 +1,25 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import validator from "validator";
 
 const saltRounds = 10;
 
 // hashed password
-export async function hashPassword(password: string) {
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-  return hashedPassword;
+export async function hashPassword(password: string): Promise<string> {
+  return await bcrypt.hash(password, saltRounds);
 }
 
 // compares password with stored one
 export async function comparePassword(
   currentPassword: string,
   storedPassword: string
-) {
-  const match = await bcrypt.compare(currentPassword, storedPassword);
-  if (match) return match;
-  else throw new Error("Invalid credentials, incorrect password or email");
+): Promise<void> {
+  const isMatch = await bcrypt.compare(currentPassword, storedPassword);
+  if (!isMatch) new Error("Invalid credentials, incorrect password or email");
 }
 
 export async function signToken(userId: string) {
-  const token = await new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
     jwt.sign(
       { userId: userId },
       `${process.env.JWT_SECRET}`,
@@ -28,24 +27,48 @@ export async function signToken(userId: string) {
       // callback function
       (err, token) => {
         if (err) return reject(err);
+        // resolves with token
         else resolve(token);
       }
     );
   });
-  return token;
 }
 
 export async function verifyToken(token: string) {
-  const decoded = await new Promise((resolve, reject) => {
+  return await new Promise((resolve, reject) => {
     jwt.verify(
       token,
       `${process.env.JWT_SECRET}`,
       // callback function
       (err, decoded) => {
-        if (err) return reject(err);
-        else resolve(decoded);
+        if (err)
+          if (err) return reject(err);
+          // resolves with decoded token
+          else resolve(decoded);
       }
     );
   });
-  return decoded;
+}
+
+export async function validatePasswordAndEmail({
+  password,
+  email,
+}: {
+  password: string;
+  email: string;
+}) {
+  // checks if password and email exist
+  if (validator.isEmpty(password) || validator.isEmpty(email)) {
+    throw new Error("Invalid password or/and email");
+  }
+
+  // checks if email is of email type
+  if (!validator.isEmail(email)) {
+    throw new Error("Invalid email");
+  }
+
+  //checks if password is strong enough
+  // if (!validator.isStrongPassword(password)) {
+  //   throw new Error("Password is not strong enough");
+  // }
 }

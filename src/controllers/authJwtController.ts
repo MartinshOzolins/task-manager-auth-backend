@@ -1,24 +1,60 @@
 import { Request, Response } from "express";
-import { signToken } from "../utils/helpers.js";
+import {
+  comparePassword,
+  hashPassword,
+  signToken,
+  validatePasswordAndEmail,
+} from "../utils/helpers.js";
+
+import prisma from "../prismaClient.js";
 
 export async function register(req: Request, res: Response) {
-  // retrieve inputs
-  const data = req.body;
-  const email = data.email || "";
-  const password = data.password || "";
+  // retrieves inputs
+  const { email, password } = req.body;
 
-  // validate inputs
-  if (!email || !password) {
-    throw new Error("Please provide password and email");
-  }
-  // create jwt
-  const token = signToken("123");
+  // validates inputs
+  validatePasswordAndEmail({ email, password });
 
-  // attach jwt cookie
+  // hashes password
+  const hashedPassword = await hashPassword(password);
+
+  // stores user into db
+  const user = await prisma.user.create({
+    data: { email: email, password: hashedPassword },
+  });
+
+  // creates jwt
+  const token = signToken(user.userId);
+
+  // attaches jwt cookie
   res.cookie("jwt", token);
 
   res.json("Registration succesful");
-  // return success message
+  // returns success message
 }
 
-export async function login() {}
+export async function login(req: Request, res: Response) {
+  // retrieves inputs
+  const { email, password } = req.body;
+
+  // validates inputs
+  validatePasswordAndEmail({ email, password });
+
+  // retrieves user from database
+  const user = await prisma.user.findUnique({ where: { email: email } });
+
+  if (!user)
+    throw new Error("Invalid credentials, incorrect password or email");
+
+  // compares passwords
+  await comparePassword(password, user.password);
+
+  // if password matches
+  // creates jwt
+  const token = signToken(user.password);
+
+  // attaches jwt cookie
+  res.cookie("jwt", token);
+
+  res.json("Login succesful");
+}

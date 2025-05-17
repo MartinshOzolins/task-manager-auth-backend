@@ -3,7 +3,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -12,9 +11,10 @@ datasource db {
 }
 
 model User {
-  userId String @id @default(uuid())
-  email  String @unique
-  Todo   Todo[]
+  userId   String @id @default(uuid())
+  email    String @unique
+  password String
+  Todo     Todo[]
 }
 
 model Todo {
