@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
+
 import {
+  attachJWTCookie,
   comparePassword,
   hashPassword,
   signToken,
@@ -7,8 +9,13 @@ import {
 } from "../utils/helpers.js";
 
 import prisma from "../prismaClient.js";
+import { catchAsync } from "../utils/catchAsync.js";
 
-export async function register(req: Request, res: Response) {
+// registers and returns JWT
+export const register = catchAsync(async function (
+  req: Request,
+  res: Response
+) {
   // retrieves inputs
   const { email, password } = req.body;
 
@@ -24,16 +31,17 @@ export async function register(req: Request, res: Response) {
   });
 
   // creates jwt
-  const token = signToken(user.userId);
+  const token = await signToken(user.userId);
 
-  // attaches jwt cookie
-  res.cookie("jwt", token);
+  // attahes jwt as a cookie
+  attachJWTCookie(res, token as string);
 
   res.json("Registration succesful");
   // returns success message
-}
+});
 
-export async function login(req: Request, res: Response) {
+// logins and returns JWT
+export const login = catchAsync(async function (req: Request, res: Response) {
   // retrieves inputs
   const { email, password } = req.body;
 
@@ -51,10 +59,10 @@ export async function login(req: Request, res: Response) {
 
   // if password matches
   // creates jwt
-  const token = signToken(user.password);
+  const token = await signToken(user.password);
 
-  // attaches jwt cookie
-  res.cookie("jwt", token);
+  // attahes jwt as a cookie
+  attachJWTCookie(res, token as string);
 
   res.json("Login succesful");
-}
+});

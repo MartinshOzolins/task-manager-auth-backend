@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 
+import { Response } from "express";
+
 const saltRounds = 10;
 
 // hashed password
@@ -18,6 +20,7 @@ export async function comparePassword(
   if (!isMatch) new Error("Invalid credentials, incorrect password or email");
 }
 
+// creates JWT
 export async function signToken(userId: string) {
   return await new Promise((resolve, reject) => {
     jwt.sign(
@@ -34,6 +37,7 @@ export async function signToken(userId: string) {
   });
 }
 
+// verifies JWT
 export async function verifyToken(token: string) {
   return await new Promise((resolve, reject) => {
     jwt.verify(
@@ -50,6 +54,16 @@ export async function verifyToken(token: string) {
   });
 }
 
+// attaches JWT to headers
+export function attachJWTCookie(res: Response, token: string) {
+  res.cookie("jwt", token, {
+    expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    //secure: true, // only for production
+  });
+}
+
+// validates user details
 export async function validatePasswordAndEmail({
   password,
   email,
