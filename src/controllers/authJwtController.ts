@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 
 // helpers
-import { validatePasswordAndEmail } from "../utils/validators.js";
+import {
+  isPasswordStrong,
+  validatePasswordAndEmail,
+} from "../utils/validators.js";
 import {
   attachJWTCookie,
   hashPassword,
@@ -12,6 +15,7 @@ import { catchAsync } from "../utils/catchAsync.js";
 
 // prisma client
 import prisma from "../prismaClient.js";
+import AppError from "../utils/appError.js";
 
 // registers user and sets JWT cookie
 export const register = catchAsync(async function (
@@ -23,6 +27,9 @@ export const register = catchAsync(async function (
 
   // validates inputs
   validatePasswordAndEmail({ email, password });
+
+  // checks if password strong enough
+  isPasswordStrong(password);
 
   // hashes password
   const hashedPassword = await hashPassword(password);
@@ -54,7 +61,7 @@ export const login = catchAsync(async function (req: Request, res: Response) {
   const user = await prisma.user.findUnique({ where: { email: email } });
 
   if (!user)
-    throw new Error("Invalid credentials, incorrect password or email");
+    throw new AppError("Invalid credentials: incorrect password or email", 401);
 
   // compares passwords
   await comparePassword(password, user.password);

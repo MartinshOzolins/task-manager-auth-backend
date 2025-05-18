@@ -7,6 +7,7 @@ import { checkJWTCookie, verifyToken } from "../utils/auth.js";
 
 // prisma client
 import prisma from "../prismaClient.js";
+import AppError from "../utils/appError.js";
 
 export const getAllTodos = catchAsync(async function (
   req: Request,
@@ -28,7 +29,7 @@ export const getAllTodos = catchAsync(async function (
   });
 
   if (todos.length === 0) {
-    return res.json("No todos found!");
+    throw new AppError("No todos found!", 404);
   }
   // returns todos
   res.json(todos);
@@ -126,7 +127,7 @@ export const deleteTodo = catchAsync(async function (
   });
 
   if (!todo) {
-    throw new Error("todo not found");
+    throw new AppError("Such todo not found", 404);
   }
 
   // returns todo
