@@ -1,6 +1,11 @@
-import { catchAsync } from "../utils/catchAsync.js";
 import { Request, Response } from "express";
-import { validateNewTodo, verifyToken } from "../utils/helpers.js";
+
+// helpers
+import { catchAsync } from "../utils/catchAsync.js";
+import { validateNewTodo } from "../utils/validators.js";
+import { verifyToken } from "../utils/auth.js";
+
+// prisma client
 import prisma from "../prismaClient.js";
 
 export const getAllTodos = catchAsync(async function (

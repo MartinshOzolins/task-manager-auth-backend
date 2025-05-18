@@ -1,13 +1,11 @@
 import bcrypt from "bcrypt";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import validator from "validator";
+import jwt from "jsonwebtoken";
 
 import { Response } from "express";
 
-const saltRounds = 10;
-
 // hashed password
 export async function hashPassword(password: string): Promise<string> {
+  const saltRounds = parseInt(process.env.SALT_ROUNDS as string);
   return await bcrypt.hash(password, saltRounds);
 }
 
@@ -56,7 +54,7 @@ export async function verifyToken(token: string) {
   });
 }
 
-// attaches JWT to headers
+// attaches JWT cookie to headers
 export function attachJWTCookie(res: Response, token: string) {
   res.cookie("jwt", token, {
     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
@@ -64,35 +62,4 @@ export function attachJWTCookie(res: Response, token: string) {
     sameSite: "strict",
     //secure: true, // only for production
   });
-}
-
-// validates user details
-export function validatePasswordAndEmail({
-  password,
-  email,
-}: {
-  password: string;
-  email: string;
-}) {
-  // checks if password and email exist
-  if (validator.isEmpty(password) || validator.isEmpty(email)) {
-    throw new Error("Invalid password or/and email");
-  }
-
-  // checks if email is of email type
-  if (!validator.isEmail(email)) {
-    throw new Error("Invalid email");
-  }
-
-  //checks if password is strong enough
-  // if (!validator.isStrongPassword(password)) {
-  //   throw new Error("Password is not strong enough");
-  // }
-}
-// validates todo details
-export function validateNewTodo({ description }: { description: string }) {
-  // checks if todo is not empty and if is, throws an error
-  if (validator.isEmpty(description)) {
-    throw new Error("Please submit todo description");
-  }
 }

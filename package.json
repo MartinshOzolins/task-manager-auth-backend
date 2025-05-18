@@ -7,7 +7,9 @@
     "compile": "tsc",
     "watch": "tsc --watch",
     "dev": "nodemon dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate": "prisma generate",
+    "build": "tsc && prisma generate",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",

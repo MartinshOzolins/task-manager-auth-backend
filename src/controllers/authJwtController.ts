@@ -1,15 +1,17 @@
 import { Request, Response } from "express";
 
+// helpers
+import { validatePasswordAndEmail } from "../utils/validators.js";
 import {
   attachJWTCookie,
-  comparePassword,
   hashPassword,
   signToken,
-  validatePasswordAndEmail,
-} from "../utils/helpers.js";
-
-import prisma from "../prismaClient.js";
+  comparePassword,
+} from "../utils/auth.js";
 import { catchAsync } from "../utils/catchAsync.js";
+
+// prisma client
+import prisma from "../prismaClient.js";
 
 // registers and returns JWT
 export const register = catchAsync(async function (

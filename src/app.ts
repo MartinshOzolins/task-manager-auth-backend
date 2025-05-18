@@ -18,6 +18,6 @@ app.use(cookieParser());
 
 // Routers
 app.use("/api/auth/jwt", authJwtRouter);
-app.use("/api/todos/", taskRouter);
+app.use("/api/todos", taskRouter);
 
 export default app;
