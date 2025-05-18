@@ -61,7 +61,7 @@ export function attachJWTCookie(res: Response, token: string) {
   });
 }
 
-export function checkJWTCookie(req: Request) {
+export function checkJWTCookie(req: Request): string {
   const token = req.cookies.jwt || undefined;
 
   if (!token) throw new Error("JWT cookie absent");

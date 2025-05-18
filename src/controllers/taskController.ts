@@ -58,11 +58,13 @@ export const getSingleTodo = catchAsync(async function (
   res.json(todo);
 });
 
+// creates todo
 export const createTodo = catchAsync(async function (
   req: Request,
   res: Response
 ) {
   const description: string = req.body.description ?? "";
+
   // validates input
   validateNewTodo({ description: description });
 
@@ -71,7 +73,7 @@ export const createTodo = catchAsync(async function (
 
   // verifies jwt
   const decoded: any = await verifyToken(token);
-  console.log(decoded);
+
   // creates task
   const todo = await prisma.todo.create({
     data: { description: description, userId: decoded.userId },
@@ -82,6 +84,7 @@ export const createTodo = catchAsync(async function (
   res.json(todo);
 });
 
+// updates todo
 export const updateTodo = catchAsync(async function (
   req: Request,
   res: Response

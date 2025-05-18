@@ -28,15 +28,18 @@ app.use((req: Request, res: Response) => {
 });
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.log("error", err);
-  console.log("message", err.message);
-
   // development mode
-  if (process.env.NODE_ENV === "1") {
+  if (process.env.NODE_ENV === "development") {
+    console.log("error", err);
     res.status(409).json({ err: err, message: err.message });
   } else if (err.code === "P2002") {
     // Prisma error => Unique constraint failure
-    res.status(409).json({ message: "Email already in use" });
+    res.status(409).json({ message: "Email already in use!" });
+  } else if (err.code === "P2025") {
+    // Prisma error => Unique constraint failure
+    res
+      .status(409)
+      .json({ message: "No todo was found for update/delete action!" });
   } else {
     // switch statement to match different errors in production mode
     switch (err.message) {
@@ -59,9 +62,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
         res.status(400).json({ message: "Please provide a todo description" });
         break;
       case "JWT sign error": // JWT sign error => Error while signing JWT
-        res
-          .status(500)
-          .json({ message: "Please provide both password and email" });
+        res.status(500).json({ message: "Error occurred while signing JWT" });
         break;
       case "JWT verify error": // JWT verify error => Error while veryfing JWT
         res.status(401).json({ message: "Error occurred while verifying JW" });

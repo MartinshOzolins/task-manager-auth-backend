@@ -61,7 +61,7 @@ export const login = catchAsync(async function (req: Request, res: Response) {
 
   // if password matches
   // creates jwt
-  const token = await signToken(user.password);
+  const token = await signToken(user.userId);
 
   // attahes jwt as a cookie
   attachJWTCookie(res, token as string);
