@@ -13,7 +13,7 @@ import { catchAsync } from "../utils/catchAsync.js";
 // prisma client
 import prisma from "../prismaClient.js";
 
-// registers and returns JWT
+// registers user and sets JWT cookie
 export const register = catchAsync(async function (
   req: Request,
   res: Response

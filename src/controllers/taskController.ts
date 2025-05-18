@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 // helpers
 import { catchAsync } from "../utils/catchAsync.js";
 import { validateNewTodo } from "../utils/validators.js";
-import { verifyToken } from "../utils/auth.js";
+import { checkJWTCookie, verifyToken } from "../utils/auth.js";
 
 // prisma client
 import prisma from "../prismaClient.js";
@@ -15,12 +15,10 @@ export const getAllTodos = catchAsync(async function (
   // const users = await prisma.todo.findMany();
   // console.log(users);
 
-  // checks for jwt
-  const token = req.cookies.jwt || undefined;
+  // checks for jwt cookie existance
+  const token = checkJWTCookie(req);
 
-  if (!token) throw new Error("Please login or register!");
-
-  // verifies jwt
+  // verifies jwt cookie
   const decoded: any = await verifyToken(token);
 
   // fetches tasks for specific user based on id
@@ -40,10 +38,8 @@ export const getSingleTodo = catchAsync(async function (
   req: Request,
   res: Response
 ) {
-  // checks for jwt
-  const token = req.cookies.jwt || undefined;
-
-  if (!token) throw new Error("Please login or register!");
+  // checks for jwt cookie existance
+  const token = checkJWTCookie(req);
 
   // verifies jwt
   const decoded: any = await verifyToken(token);
@@ -51,11 +47,11 @@ export const getSingleTodo = catchAsync(async function (
   // fetches a task for specific user based on id
   const todo = await prisma.todo.findUnique({
     where: { todoId: req.params.id, userId: decoded.userId },
-    select: { description: true },
+    select: { description: true, todoId: true },
   });
 
   if (!todo) {
-    return res.json("Such todo not found!");
+    throw new Error("todo not found");
   }
 
   // returns todo
@@ -70,20 +66,19 @@ export const createTodo = catchAsync(async function (
   // validates input
   validateNewTodo({ description: description });
 
-  // checks for jwt
-  const token = req.cookies.jwt || undefined;
-
-  if (!token) throw new Error("Please login or register!");
+  // checks for jwt cookie existance
+  const token = checkJWTCookie(req);
 
   // verifies jwt
   const decoded: any = await verifyToken(token);
-
+  console.log(decoded);
   // creates task
   const todo = await prisma.todo.create({
     data: { description: description, userId: decoded.userId },
+    select: { todoId: true, description: true },
   });
 
-  // returns new todo
+  // returns the added todo
   res.json(todo);
 });
 
@@ -95,21 +90,20 @@ export const updateTodo = catchAsync(async function (
   // validates input
   validateNewTodo({ description: description });
 
-  // checks for jwt
-  const token = req.cookies.jwt || undefined;
-
-  if (!token) throw new Error("Please login or register!");
+  // checks for jwt cookie existance
+  const token = checkJWTCookie(req);
 
   // verifies jwt
   const decoded: any = await verifyToken(token);
-  console.log(req.params.id, decoded.userId);
+
   // updates a task
   const todo = await prisma.todo.update({
     where: { todoId: req.params.id, userId: decoded.userId },
     data: { description: description },
+    select: { description: true, todoId: true },
   });
 
-  // returns a updated todo
+  // returns the updated todo
   res.json(todo);
 });
 
@@ -117,11 +111,8 @@ export const deleteTodo = catchAsync(async function (
   req: Request,
   res: Response
 ) {
-  // checks for jwt
-  const token = req.cookies.jwt || undefined;
-
-  // throws an error if not found
-  if (!token) throw new Error("Please login or register!");
+  // checks for jwt cookie existance
+  const token = checkJWTCookie(req);
 
   // verifies jwt
   const decoded: any = await verifyToken(token);
@@ -132,9 +123,9 @@ export const deleteTodo = catchAsync(async function (
   });
 
   if (!todo) {
-    return res.json("Such todo not found!");
+    throw new Error("todo not found");
   }
 
   // returns todo
-  res.json("Todo deleted successfully");
+  res.json({ message: "Todo deleted successfully" });
 });

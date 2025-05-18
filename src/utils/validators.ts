@@ -8,9 +8,9 @@ export function validatePasswordAndEmail({
   password: string;
   email: string;
 }) {
-  // checks if password and email exist
+  // checks if password and email provided
   if (validator.isEmpty(password) || validator.isEmpty(email)) {
-    throw new Error("Invalid password or/and email");
+    throw new Error("No credentials");
   }
 
   // checks if email is of email type
@@ -28,6 +28,6 @@ export function validatePasswordAndEmail({
 export function validateNewTodo({ description }: { description: string }) {
   // checks if todo is not empty and if is, throws an error
   if (validator.isEmpty(description)) {
-    throw new Error("Please submit todo description");
+    throw new Error("No todo description");
   }
 }

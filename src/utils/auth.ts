@@ -1,27 +1,24 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-import { Response } from "express";
+import { Request, Response } from "express";
 
-// hashed password
+// hashes the password
 export async function hashPassword(password: string): Promise<string> {
   const saltRounds = parseInt(process.env.SALT_ROUNDS as string);
   return await bcrypt.hash(password, saltRounds);
 }
 
-// compares password with stored one
+// compares provided password with the stored one
 export async function comparePassword(
   currentPassword: string,
   storedPassword: string
 ): Promise<void> {
   const isMatch = await bcrypt.compare(currentPassword, storedPassword);
-  console.log(currentPassword, storedPassword);
-  console.log(isMatch);
-  if (!isMatch)
-    throw new Error("Invalid credentials, incorrect password or email");
+  if (!isMatch) throw new Error("Incorrect credentials");
 }
 
-// creates JWT
+// creates a JWT
 export async function signToken(userId: string) {
   return await new Promise((resolve, reject) => {
     jwt.sign(
@@ -30,7 +27,7 @@ export async function signToken(userId: string) {
       { expiresIn: "2d" },
       // callback function
       (err, token) => {
-        if (err) throw new Error("Something went wrong, please try again!");
+        if (err) throw new Error("JWT sign error");
         // resolves with token
         else resolve(token);
       }
@@ -38,7 +35,7 @@ export async function signToken(userId: string) {
   });
 }
 
-// verifies JWT
+// verifies a JWT
 export async function verifyToken(token: string) {
   return await new Promise((resolve, reject) => {
     jwt.verify(
@@ -46,7 +43,7 @@ export async function verifyToken(token: string) {
       `${process.env.JWT_SECRET}`,
       // callback function
       (err, decoded) => {
-        if (err) throw new Error("Something went wrong, please login!");
+        if (err) throw new Error("JWT verify error");
         // resolves with decoded token
         else resolve(decoded);
       }
@@ -54,7 +51,7 @@ export async function verifyToken(token: string) {
   });
 }
 
-// attaches JWT cookie to headers
+// attaches a JWT cookie to headers
 export function attachJWTCookie(res: Response, token: string) {
   res.cookie("jwt", token, {
     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
@@ -62,4 +59,12 @@ export function attachJWTCookie(res: Response, token: string) {
     sameSite: "strict",
     //secure: true, // only for production
   });
+}
+
+export function checkJWTCookie(req: Request) {
+  const token = req.cookies.jwt || undefined;
+
+  if (!token) throw new Error("JWT cookie absent");
+
+  return token;
 }
