@@ -25,7 +25,7 @@ export const getAllTodos = catchAsync(async function (
   // fetches tasks for specific user based on id
   const todos = await prisma.todo.findMany({
     where: { userId: decoded.userId },
-    select: { description: true },
+    select: { description: true, todoId: true },
   });
 
   if (todos.length === 0) {
@@ -52,7 +52,7 @@ export const getSingleTodo = catchAsync(async function (
   });
 
   if (!todo) {
-    throw new Error("todo not found");
+    throw new AppError("Such todo not found!", 404);
   }
 
   // returns todo
@@ -127,9 +127,9 @@ export const deleteTodo = catchAsync(async function (
   });
 
   if (!todo) {
-    throw new AppError("Such todo not found", 404);
+    throw new AppError("Such todo not found!", 404);
   }
 
   // returns todo
-  res.json({ message: "Todo deleted successfully" });
+  res.json({ message: "Todo deleted successfully!" });
 });

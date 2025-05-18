@@ -49,7 +49,12 @@ export async function verifyToken(token: string) {
       // callback function
       (err, decoded) => {
         if (err)
-          reject(new AppError("Error occurred while verifying JWT", 401));
+          reject(
+            new AppError(
+              "Error occurred while verifying JWT. Please login again!",
+              401
+            )
+          );
         // resolves with decoded token
         else resolve(decoded);
       }
