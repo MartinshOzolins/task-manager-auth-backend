@@ -5,6 +5,7 @@ import { Request, Response, NextFunction } from "express";
 // Middlewares
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import { rateLimit } from "express-rate-limit";
 
 // Routers
 import { router as authJwtRouter } from "./routes/authJwtRouter.js";
@@ -15,6 +16,7 @@ import AppError from "./utils/appError.js";
 const app = express();
 
 // Middlewares configuration
+app.use(rateLimit({ limit: 100, windowMs: 15 * 60 * 1000 }));
 app.use(express.json());
 app.use(morgan("tiny"));
 app.use(cookieParser());
@@ -49,9 +51,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
   // Prisma record not found error
   if (err.code === "P2025") {
-    res
-      .status(409)
-      .json({ message: "No todo was found for update/delete action!" });
+    res.status(409).json({ message: "No TODO found to update or delete." });
     return;
   }
 
